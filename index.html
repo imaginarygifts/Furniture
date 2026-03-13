@@ -12,6 +12,21 @@
 
 <div class="container">
 
+<h2>Create Project</h2>
+
+<label>Client Name</label>
+<input type="text" id="clientName">
+
+<label>Project Name</label>
+<input type="text" id="projectName">
+
+<button onclick="createProject()">Create Project</button>
+
+</div>
+
+
+<div class="container">
+
 <h2>Cabinet Dimensions</h2>
 
 <label>Height (mm)</label>
@@ -23,7 +38,7 @@
 <label>Depth (mm)</label>
 <input type="number" id="depth">
 
-<label>Sheet Thickness (mm)</label>
+<label>Sheet Thickness</label>
 <input type="number" id="thickness" value="18">
 
 <button onclick="generateCutList()">Generate Cut List</button>
@@ -87,6 +102,8 @@
 
 <pre id="cutlist"></pre>
 
+<button onclick="addCabinet()">Add Cabinet To Project</button>
+
 </div>
 
 
@@ -96,18 +113,20 @@
 
 <canvas id="sheetCanvas" width="700" height="350"></canvas>
 
-<button onclick="generateLayout()">Generate Sheet Layout</button>
+<button onclick="generateLayout()">Generate Layout</button>
 
 </div>
 
 
 <div class="container">
 
-<h2>Quotation</h2>
+<h2>Project Cabinets</h2>
 
-<button onclick="generateQuotation()">Generate Quotation</button>
+<pre id="projectList"></pre>
 
-<pre id="quotation"></pre>
+<button onclick="generateProjectQuotation()">Generate Project Quotation</button>
+
+<pre id="projectQuotation"></pre>
 
 </div>
 
