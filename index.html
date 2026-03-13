@@ -26,15 +26,13 @@
 <label>Sheet Thickness (mm)</label>
 <input type="number" id="thickness" value="18">
 
-<label>Back Panel Thickness (mm)</label>
-<input type="number" id="backThickness" value="6">
-
 <button onclick="generateCutList()">Generate Cut List</button>
 
 </div>
 
 
 <div class="container">
+
 <h2>Compartments</h2>
 
 <label>Shelves</label>
@@ -48,44 +46,57 @@
 
 <div class="container">
 
-<h2>Material Price</h2>
+<h2>Material Cost</h2>
 
-<label>Plywood price / sq ft</label>
+<label>Plywood Price / sq ft</label>
 <input type="number" id="plyPrice">
 
-<label>Mica price / sq ft</label>
+<label>Mica Price / sq ft</label>
 <input type="number" id="micaPrice">
 
-<button onclick="calculateCost()">Calculate Material Cost</button>
+<button onclick="calculateCost()">Calculate Material</button>
+
+<pre id="cost"></pre>
 
 </div>
 
 
 <div class="container">
 
-<h2>Hardware</h2>
+<h2>Hardware Cost</h2>
 
-<label>Hinge price</label>
+<label>Hinge Price</label>
 <input type="number" id="hingePrice">
 
-<label>Handles price</label>
+<label>Handle Price</label>
 <input type="number" id="handlePrice">
 
-<label>Channels price</label>
+<label>Channel Price</label>
 <input type="number" id="channelPrice">
 
 <button onclick="calculateHardware()">Calculate Hardware</button>
 
+<pre id="hardware"></pre>
+
 </div>
 
 
 <div class="container">
 
-<h2>Results</h2>
+<h2>Cut List</h2>
 
 <pre id="cutlist"></pre>
-<pre id="cost"></pre>
-<pre id="hardware"></pre>
+
+</div>
+
+
+<div class="container">
+
+<h2>Sheet Cutting Layout</h2>
+
+<canvas id="sheetCanvas" width="700" height="350"></canvas>
+
+<button onclick="generateLayout()">Generate Sheet Layout</button>
 
 </div>
 
