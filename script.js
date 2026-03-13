@@ -2,6 +2,26 @@ let materialCost = 0
 let hardwareCost = 0
 let panels = []
 
+let project = {
+client:"",
+name:"",
+cabinets:[]
+}
+
+// CREATE PROJECT
+
+function createProject(){
+
+project.client = document.getElementById("clientName").value
+project.name = document.getElementById("projectName").value
+project.cabinets = []
+
+alert("Project Created")
+
+}
+
+
+
 // CUT LIST GENERATOR
 
 function generateCutList(){
@@ -15,14 +35,12 @@ let d = parseFloat(document.getElementById("depth").value)
 let t = parseFloat(document.getElementById("thickness").value)
 
 let shelves = parseInt(document.getElementById("shelves").value) || 0
-let drawers = parseInt(document.getElementById("drawers").value) || 0
 
 let sidePanel = `${h} x ${d}`
 let topBottom = `${w-(t*2)} x ${d}`
 
 panels.push({name:"Side",w:d,h:h})
 panels.push({name:"Side",w:d,h:h})
-
 panels.push({name:"Top",w:d,h:w-(t*2)})
 panels.push({name:"Bottom",w:d,h:w-(t*2)})
 
@@ -39,7 +57,7 @@ h:w-(t*2)
 let result = `
 ----- CUT LIST -----
 
-Side Panel (2)
+Side Panels (2)
 ${sidePanel}
 
 Top Panel
@@ -53,8 +71,6 @@ ${topBottom}
 `
 
 document.getElementById("cutlist").textContent = result
-
-saveDesign()
 
 }
 
@@ -77,18 +93,15 @@ let micaCost = area * micaPrice
 
 materialCost = plywoodCost + micaCost
 
-let result = `
+document.getElementById("cost").textContent = `
+Material Area : ${area.toFixed(2)} sq ft
 
-Material Area: ${area.toFixed(2)} sq ft
+Plywood Cost : ₹${plywoodCost.toFixed(2)}
 
-Plywood Cost: ₹${plywoodCost.toFixed(2)}
+Mica Cost : ₹${micaCost.toFixed(2)}
 
-Mica Cost: ₹${micaCost.toFixed(2)}
-
-Total Material Cost: ₹${materialCost.toFixed(2)}
+Total Material Cost : ₹${materialCost.toFixed(2)}
 `
-
-document.getElementById("cost").textContent = result
 
 }
 
@@ -108,18 +121,109 @@ let channelCost = channelPrice * 1
 
 hardwareCost = hingeCost + handleCost + channelCost
 
-let result = `
+document.getElementById("hardware").textContent = `
+Hinges : ₹${hingeCost}
 
-Hinges (2) : ₹${hingeCost}
+Handles : ₹${handleCost}
 
-Handles (1) : ₹${handleCost}
-
-Channels (1) : ₹${channelCost}
+Channels : ₹${channelCost}
 
 Total Hardware Cost : ₹${hardwareCost}
 `
 
-document.getElementById("hardware").textContent = result
+}
+
+
+
+// ADD CABINET TO PROJECT
+
+function addCabinet(){
+
+let cabinet = {
+
+width:document.getElementById("width").value,
+height:document.getElementById("height").value,
+depth:document.getElementById("depth").value,
+material:materialCost,
+hardware:hardwareCost
+
+}
+
+project.cabinets.push(cabinet)
+
+displayProject()
+
+}
+
+
+
+// DISPLAY PROJECT
+
+function displayProject(){
+
+let output = ""
+
+project.cabinets.forEach((cab,i)=>{
+
+output += `
+Cabinet ${i+1}
+
+Size : ${cab.width} x ${cab.height} x ${cab.depth}
+
+Material : ₹${cab.material}
+
+Hardware : ₹${cab.hardware}
+
+`
+
+})
+
+document.getElementById("projectList").textContent = output
+
+}
+
+
+
+// PROJECT QUOTATION
+
+function generateProjectQuotation(){
+
+let totalMaterial = 0
+let totalHardware = 0
+
+project.cabinets.forEach(c=>{
+
+totalMaterial += c.material
+totalHardware += c.hardware
+
+})
+
+let labour = totalMaterial * 0.25
+let transport = 1000
+
+let total = totalMaterial + totalHardware + labour + transport
+
+document.getElementById("projectQuotation").textContent = `
+
+------ PROJECT QUOTATION ------
+
+Client : ${project.client}
+
+Project : ${project.name}
+
+Material Cost : ₹${totalMaterial}
+
+Hardware Cost : ₹${totalHardware}
+
+Labour : ₹${labour}
+
+Transport : ₹${transport}
+
+-----------------------------
+
+TOTAL : ₹${total}
+
+`
 
 }
 
@@ -135,8 +239,6 @@ let ctx = canvas.getContext("2d")
 ctx.clearRect(0,0,canvas.width,canvas.height)
 
 let sheetW = 2440
-let sheetH = 1220
-
 let scale = 0.2
 
 let x = 0
@@ -157,7 +259,6 @@ rowHeight = 0
 }
 
 ctx.strokeRect(x,y,pw,ph)
-
 ctx.fillText(panel.name,x+5,y+15)
 
 x += pw
@@ -169,88 +270,5 @@ rowHeight = ph
 }
 
 })
-
-}
-
-
-
-// QUOTATION
-
-function generateQuotation(){
-
-let labour = materialCost * 0.25
-let transport = 500
-
-let total = materialCost + hardwareCost + labour + transport
-
-let quotation = `
-
------- CLIENT QUOTATION ------
-
-Material Cost : ₹${materialCost.toFixed(2)}
-
-Hardware Cost : ₹${hardwareCost.toFixed(2)}
-
-Labour : ₹${labour.toFixed(2)}
-
-Transport : ₹${transport}
-
------------------------------
-
-TOTAL PRICE : ₹${total.toFixed(2)}
-
-`
-
-document.getElementById("quotation").textContent = quotation
-
-}
-
-
-
-// SAVE DESIGN
-
-function saveDesign(){
-
-let design = {
-
-height:document.getElementById("height").value,
-width:document.getElementById("width").value,
-depth:document.getElementById("depth").value,
-thickness:document.getElementById("thickness").value,
-shelves:document.getElementById("shelves").value,
-drawers:document.getElementById("drawers").value
-
-}
-
-localStorage.setItem("furnitureDesign",JSON.stringify(design))
-
-}
-
-
-
-// LOAD DESIGN
-
-function loadDesign(){
-
-let saved = localStorage.getItem("furnitureDesign")
-
-if(!saved) return
-
-let design = JSON.parse(saved)
-
-document.getElementById("height").value = design.height
-document.getElementById("width").value = design.width
-document.getElementById("depth").value = design.depth
-document.getElementById("thickness").value = design.thickness
-document.getElementById("shelves").value = design.shelves
-document.getElementById("drawers").value = design.drawers
-
-}
-
-
-
-window.onload = function(){
-
-loadDesign()
 
 }
