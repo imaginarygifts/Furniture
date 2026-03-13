@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Furniture Calculator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>Furniture Calculator</h1>
+
+<div class="container">
+
+<h2>Cabinet Dimensions</h2>
+
+<label>Height (mm)</label>
+<input type="number" id="height">
+
+<label>Width (mm)</label>
+<input type="number" id="width">
+
+<label>Depth (mm)</label>
+<input type="number" id="depth">
+
+<label>Sheet Thickness (mm)</label>
+<input type="number" id="thickness" value="18">
+
+<label>Back Panel Thickness (mm)</label>
+<input type="number" id="backThickness" value="6">
+
+<button onclick="generateCutList()">Generate Cut List</button>
+
+</div>
+
+
+<div class="container">
+<h2>Compartments</h2>
+
+<label>Shelves</label>
+<input type="number" id="shelves" value="0">
+
+<label>Drawers</label>
+<input type="number" id="drawers" value="0">
+
+</div>
+
+
+<div class="container">
+
+<h2>Material Price</h2>
+
+<label>Plywood price / sq ft</label>
+<input type="number" id="plyPrice">
+
+<label>Mica price / sq ft</label>
+<input type="number" id="micaPrice">
+
+<button onclick="calculateCost()">Calculate Material Cost</button>
+
+</div>
+
+
+<div class="container">
+
+<h2>Hardware</h2>
+
+<label>Hinge price</label>
+<input type="number" id="hingePrice">
+
+<label>Handles price</label>
+<input type="number" id="handlePrice">
+
+<label>Channels price</label>
+<input type="number" id="channelPrice">
+
+<button onclick="calculateHardware()">Calculate Hardware</button>
+
+</div>
+
+
+<div class="container">
+
+<h2>Results</h2>
+
+<pre id="cutlist"></pre>
+<pre id="cost"></pre>
+<pre id="hardware"></pre>
+
+</div>
+
+
+<div class="container">
+
+<h2>Quotation</h2>
+
+<button onclick="generateQuotation()">Generate Quotation</button>
+
+<pre id="quotation"></pre>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
