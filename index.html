@@ -13,7 +13,6 @@
 
 <!-- PROJECT -->
 <div class="container">
-
 <h2>Create Project</h2>
 
 <label>Client Name</label>
@@ -23,13 +22,11 @@
 <input type="text" id="projectName">
 
 <button onclick="createProject()">Create Project</button>
-
 </div>
 
 
-<!-- CABINET DETAILS -->
+<!-- CABINET -->
 <div class="container">
-
 <h2>Cabinet Details</h2>
 
 <label>Height (mm)</label>
@@ -41,41 +38,34 @@
 <label>Depth (mm)</label>
 <input type="number" id="depth">
 
-<label>Sheet Thickness (mm)</label>
+<label>Sheet Thickness</label>
 <input type="number" id="thickness" value="18">
 
-<label>Mica Thickness (mm)</label>
+<label>Mica Thickness</label>
 <input type="number" id="micaThickness" value="1">
 
 <label>Quantity</label>
 <input type="number" id="qty" value="1">
-
 </div>
 
 
 <!-- COMPARTMENTS -->
 <div class="container">
-
 <h2>Compartments</h2>
 
-<div class="grid">
-<div>
-<label>Shelves</label>
+<label>Horizontal Shelves</label>
 <input type="number" id="shelves" value="0">
-</div>
 
-<div>
+<label>Vertical Partitions</label>
+<input type="number" id="partitions" value="0">
+
 <label>Drawers</label>
 <input type="number" id="drawers" value="0">
-</div>
-</div>
-
 </div>
 
 
 <!-- MATERIAL -->
 <div class="container">
-
 <h2>Material</h2>
 
 <label>Plywood Price (per sheet)</label>
@@ -85,62 +75,44 @@
 <input type="number" id="micaPrice">
 
 <pre id="cost"></pre>
-
 </div>
 
 
 <!-- HARDWARE -->
 <div class="container">
-
 <h2>Hardware</h2>
 
-<div class="grid">
-<div>
 <label>Hinge Price</label>
 <input type="number" id="hingePrice">
-</div>
 
-<div>
 <label>Handle Price</label>
 <input type="number" id="handlePrice">
-</div>
 
-<div>
 <label>Channel Price</label>
 <input type="number" id="channelPrice">
-</div>
-</div>
 
 <pre id="hardware"></pre>
-
 </div>
 
 
-<!-- MAIN CALCULATE BUTTON -->
+<!-- MAIN BUTTON -->
 <div class="container center">
-
-<button onclick="calculateAll()">
-Calculate
-</button>
-
+<button onclick="calculateAll()">Calculate</button>
 </div>
 
 
 <!-- CUT LIST -->
 <div class="container">
-
 <h2>Cut List</h2>
 
 <pre id="cutlist"></pre>
 
 <button onclick="addCabinet()">Add Cabinet To Project</button>
-
 </div>
 
 
-<!-- SHEET LAYOUT -->
+<!-- LAYOUT -->
 <div class="container">
-
 <h2>Sheet Cutting Layout</h2>
 
 <canvas id="sheetCanvas"></canvas>
@@ -149,13 +121,11 @@ Calculate
 <button onclick="prevSheet()">⬅ Previous</button>
 <button onclick="nextSheet()">Next ➡</button>
 </div>
-
 </div>
 
 
-<!-- PROJECT SUMMARY -->
+<!-- PROJECT -->
 <div class="container">
-
 <h2>Project Cabinets</h2>
 
 <pre id="projectList"></pre>
@@ -163,9 +133,7 @@ Calculate
 <button onclick="generateProjectQuotation()">Generate Project Quotation</button>
 
 <pre id="projectQuotation"></pre>
-
 </div>
-
 
 <script src="script.js"></script>
 
