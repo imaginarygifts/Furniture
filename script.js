@@ -12,88 +12,102 @@ cabinets:[]
 }
 
 
-
-// =======================
-// MAIN BUTTON
-// =======================
-
+// MAIN
 function calculateAll(){
-
 generateCutList()
 calculateMaterialFullSheet()
 calculateHardware()
 generateLayout()
-
 }
 
 
-
-// =======================
-// CREATE PROJECT
-// =======================
-
+// PROJECT
 function createProject(){
-
-project.client = document.getElementById("clientName").value
-project.name = document.getElementById("projectName").value
+project.client = clientName.value
+project.name = projectName.value
 project.cabinets = []
-
 alert("Project Created")
-
 }
 
 
-
-// =======================
-// CUT LIST
-// =======================
-
+// CUT LIST WITH PARTITIONS
 function generateCutList(){
 
 panels = []
 
-let h = +document.getElementById("height").value
-let w = +document.getElementById("width").value
-let d = +document.getElementById("depth").value
-let t = +document.getElementById("thickness").value
-let shelves = +document.getElementById("shelves").value || 0
-let qty = +document.getElementById("qty").value || 1
+let h = +height.value
+let w = +width.value
+let d = +depth.value
+let t = +thickness.value
+
+let shelves = +shelvesInput.value || 0
+let partitions = +partitionsInput.value || 0
+let qty = +qtyInput.value || 1
 
 let innerW = w - (t*2)
+let innerH = h
 
+let cutMap = {}
+
+function addPanel(name,w,h){
+
+let key = `${name}_${w}_${h}`
+
+if(!cutMap[key]){
+cutMap[key] = {name,w,h,count:0}
+}
+
+cutMap[key].count++
+}
+
+// loop qty
 for(let q=0;q<qty;q++){
 
-panels.push({name:"Side",w:d,h:h})
-panels.push({name:"Side",w:d,h:h})
+addPanel("Side", d, h)
+addPanel("Side", d, h)
 
-panels.push({name:"Top",w:d,h:innerW})
-panels.push({name:"Bottom",w:d,h:innerW})
+addPanel("Top", d, innerW)
+addPanel("Bottom", d, innerW)
 
+// shelves
 for(let i=0;i<shelves;i++){
-panels.push({name:"Shelf",w:d,h:innerW})
+addPanel("Shelf", d, innerW)
+}
+
+// partitions
+for(let i=0;i<partitions;i++){
+addPanel("Partition", d, innerH)
 }
 
 }
 
-document.getElementById("cutlist").textContent = `
-Total Panels: ${panels.length}
-Cabinet Qty: ${qty}
-`
+// convert for layout
+Object.values(cutMap).forEach(p=>{
+for(let i=0;i<p.count;i++){
+panels.push({name:p.name,w:p.w,h:p.h})
+}
+})
+
+// display
+let output = "----- CUT LIST -----\n\n"
+
+Object.values(cutMap).forEach(p=>{
+output += `${p.name} : ${p.h} × ${p.w} mm (${p.count})\n`
+})
+
+cutlist.textContent = output
 
 }
 
 
 
-// =======================
-// MATERIAL (FULL SHEET)
-// =======================
-
+// MATERIAL FULL SHEET
 function calculateMaterialFullSheet(){
 
 let sheetArea = 32
 
-let plyPrice = +document.getElementById("plyPrice").value || 0
-let micaPrice = +document.getElementById("micaPrice").value || 0
+let plyPrice = +plyPriceInput.value || 0
+let micaPrice = +micaPriceInput.value || 0
 
 let totalArea = 0
 
@@ -108,31 +122,27 @@ let micaCost = sheetsRequired * micaPrice
 
 materialCost = plywoodCost + micaCost
 
-document.getElementById("cost").textContent = `
-Total Area: ${totalArea.toFixed(2)} sq ft
-Sheets Required: ${sheetsRequired}
+cost.textContent = `
+Area: ${totalArea.toFixed(2)} sq ft
+Sheets: ${sheetsRequired}
 
-Plywood Cost: ₹${plywoodCost}
-Mica Cost: ₹${micaCost}
+Plywood: ₹${plywoodCost}
+Mica: ₹${micaCost}
 
-Total Material Cost: ₹${materialCost}
+Total: ₹${materialCost}
 `
 
 }
 
 
-
-// =======================
 // HARDWARE
-// =======================
-
 function calculateHardware(){
 
-let hingePrice = +document.getElementById("hingePrice").value || 0
-let handlePrice = +document.getElementById("handlePrice").value || 0
-let channelPrice = +document.getElementById("channelPrice").value || 0
+let hingePrice = +hingePriceInput.value || 0
+let handlePrice = +handlePriceInput.value || 0
+let channelPrice = +channelPriceInput.value || 0
 
-let qty = +document.getElementById("qty").value || 1
+let qty = +qtyInput.value || 1
 
 let hinges = 2 * qty
 let handles = 1 * qty
@@ -143,25 +153,21 @@ hardwareCost =
 (handles * handlePrice) +
 (channels * channelPrice)
 
-document.getElementById("hardware").textContent = `
-Hinges (${hinges}) ₹${hingePrice}
-Handles (${handles}) ₹${handlePrice}
-Channels (${channels}) ₹${channelPrice}
+hardware.textContent = `
+Hinges: ₹${hinges * hingePrice}
+Handles: ₹${handles * handlePrice}
+Channels: ₹${channels * channelPrice}
 
-Total Hardware Cost: ₹${hardwareCost}
+Total: ₹${hardwareCost}
 `
 
 }
 
 
-
-// =======================
 // AUTO OPTIMIZED LAYOUT
-// =======================
-
 function generateLayout(){
 
-let canvas = document.getElementById("sheetCanvas")
+let canvas = sheetCanvas
 let ctx = canvas.getContext("2d")
 
 ctx.clearRect(0,0,canvas.width,canvas.height)
@@ -174,14 +180,12 @@ let currentSheet = []
 
 let x=0, y=0, rowH=0
 
-// SORT panels (big → small for better packing)
 panels.sort((a,b)=>(b.w*b.h)-(a.w*a.h))
 
 panels.forEach(panel=>{
 
 let placed = false
 
-// try both orientations
 let options = [
 {w:panel.w, h:panel.h},
 {w:panel.h, h:panel.w}
@@ -194,59 +198,36 @@ let ph = opt.h
 
 if(pw > sheetW || ph > sheetH) continue
 
-let tempX = x
-let tempY = y
-let tempRowH = rowH
+let tx = x
+let ty = y
+let tr = rowH
 
-// new row if needed
-if(tempX + pw > sheetW){
-tempX = 0
-tempY += tempRowH
-tempRowH = 0
+if(tx + pw > sheetW){
+tx = 0
+ty += tr
+tr = 0
 }
 
-// new sheet if needed
-if(tempY + ph > sheetH){
-continue
-}
+if(ty + ph > sheetH) continue
 
-// place panel
-currentSheet.push({
-x:tempX,
-y:tempY,
-w:pw,
-h:ph,
-name:panel.name
-})
+currentSheet.push({x:tx,y:ty,w:pw,h:ph,name:panel.name})
 
-// update
-x = tempX + pw
-y = tempY
-rowH = Math.max(tempRowH, ph)
+x = tx + pw
+y = ty
+rowH = Math.max(tr, ph)
 
 placed = true
 break
-
 }
 
-// if not placed → new sheet
 if(!placed){
 
 sheets.push(currentSheet)
 
 currentSheet = []
+x=0; y=0; rowH=0
 
-x = 0
-y = 0
-rowH = 0
-
-currentSheet.push({
-x:0,
-y:0,
-w:panel.w,
-h:panel.h,
-name:panel.name
-})
+currentSheet.push({x:0,y:0,w:panel.w,h:panel.h,name:panel.name})
 
 x = panel.w
 rowH = panel.h
@@ -262,16 +243,12 @@ drawSheet(0)
 }
 
 
-
-// =======================
-// DRAW SHEET
-// =======================
-
+// DRAW
 function drawSheet(page){
 
 currentPage = page
 
-let canvas = document.getElementById("sheetCanvas")
+let canvas = sheetCanvas
 let ctx = canvas.getContext("2d")
 
 ctx.clearRect(0,0,canvas.width,canvas.height)
@@ -281,23 +258,13 @@ let sheet = sheets[page]
 let sheetW = 2440
 let sheetH = 1220
 
-let scale = Math.min(
-canvas.width / sheetW,
-canvas.height / sheetH
-)
+let scale = Math.min(canvas.width/sheetW, canvas.height/sheetH)
 
 ctx.strokeRect(0,0,sheetW*scale,sheetH*scale)
 
 sheet.forEach(p=>{
-
-let x = p.x * scale
-let y = p.y * scale
-let w = p.w * scale
-let h = p.h * scale
-
-ctx.strokeRect(x,y,w,h)
-ctx.fillText(p.name,x+5,y+15)
-
+ctx.strokeRect(p.x*scale,p.y*scale,p.w*scale,p.h*scale)
+ctx.fillText(p.name,p.x*scale+5,p.y*scale+15)
 })
 
 ctx.fillText(`Sheet ${page+1}/${sheets.length}`,10,sheetH*scale-10)
@@ -305,88 +272,59 @@ ctx.fillText(`Sheet ${page+1}/${sheets.length}`,10,sheetH*scale-10)
 }
 
 
-
-// =======================
 // PAGINATION
-// =======================
-
 function nextSheet(){
-if(currentPage < sheets.length-1){
-drawSheet(currentPage+1)
-}
+if(currentPage < sheets.length-1) drawSheet(currentPage+1)
 }
 
 function prevSheet(){
-if(currentPage > 0){
-drawSheet(currentPage-1)
-}
+if(currentPage > 0) drawSheet(currentPage-1)
 }
 
 
-
-// =======================
 // PROJECT
-// =======================
-
 function addCabinet(){
 
 let cabinet = {
-width:document.getElementById("width").value,
-height:document.getElementById("height").value,
-depth:document.getElementById("depth").value,
+width:width.value,
+height:height.value,
+depth:depth.value,
 material:materialCost,
 hardware:hardwareCost
 }
 
 project.cabinets.push(cabinet)
 displayProject()
-
 }
 
 function displayProject(){
 
 let output = ""
 
-project.cabinets.forEach((cab,i)=>{
-
-output += `
-Cabinet ${i+1}
-Size: ${cab.width} x ${cab.height} x ${cab.depth}
-Material: ₹${cab.material}
-Hardware: ₹${cab.hardware}
-`
-
+project.cabinets.forEach((c,i)=>{
+output += `Cabinet ${i+1}\n${c.width}×${c.height}×${c.depth}\n₹${c.material}\n\n`
 })
 
-document.getElementById("projectList").textContent = output
-
+projectList.textContent = output
 }
 
 function generateProjectQuotation(){
 
-let totalMaterial = 0
-let totalHardware = 0
+let m=0,h=0
 
 project.cabinets.forEach(c=>{
-totalMaterial += c.material
-totalHardware += c.hardware
+m+=c.material
+h+=c.hardware
 })
 
-let labour = totalMaterial * 0.25
-let transport = 1000
+let labour = m*0.25
+let total = m+h+labour+1000
 
-let total = totalMaterial + totalHardware + labour + transport
-
-document.getElementById("projectQuotation").textContent = `
-Client: ${project.client}
-Project: ${project.name}
-
-Material: ₹${totalMaterial}
-Hardware: ₹${totalHardware}
+projectQuotation.textContent = `
+Material: ₹${m}
+Hardware: ₹${h}
 Labour: ₹${labour}
-Transport: ₹${transport}
 
 TOTAL: ₹${total}
 `
-
 }
