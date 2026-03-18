@@ -11,6 +11,8 @@ name:"",
 cabinets:[]
 }
 
+
+
 // =======================
 // MAIN BUTTON
 // =======================
@@ -43,7 +45,7 @@ alert("Project Created")
 
 
 // =======================
-// CUT LIST + PANELS
+// CUT LIST
 // =======================
 
 function generateCutList(){
@@ -59,7 +61,6 @@ let qty = +document.getElementById("qty").value || 1
 
 let innerW = w - (t*2)
 
-// repeat for quantity
 for(let q=0;q<qty;q++){
 
 panels.push({name:"Side",w:d,h:h})
@@ -74,14 +75,9 @@ panels.push({name:"Shelf",w:d,h:innerW})
 
 }
 
-// UI Output
 document.getElementById("cutlist").textContent = `
 Total Panels: ${panels.length}
-
 Cabinet Qty: ${qty}
-
-Each Cabinet:
-2 Side, 1 Top, 1 Bottom, ${shelves} Shelves
 `
 
 }
@@ -94,7 +90,7 @@ Each Cabinet:
 
 function calculateMaterialFullSheet(){
 
-let sheetArea = 32 // 8x4 sheet
+let sheetArea = 32
 
 let plyPrice = +document.getElementById("plyPrice").value || 0
 let micaPrice = +document.getElementById("micaPrice").value || 0
@@ -107,24 +103,19 @@ totalArea += (p.w * p.h)/92900
 
 let sheetsRequired = Math.ceil(totalArea / sheetArea)
 
-// FULL SHEET COST
 let plywoodCost = sheetsRequired * plyPrice
 let micaCost = sheetsRequired * micaPrice
 
 materialCost = plywoodCost + micaCost
 
 document.getElementById("cost").textContent = `
-
-Total Area Used: ${totalArea.toFixed(2)} sq ft
-
-Sheets Required (8x4): ${sheetsRequired}
+Total Area: ${totalArea.toFixed(2)} sq ft
+Sheets Required: ${sheetsRequired}
 
 Plywood Cost: ₹${plywoodCost}
-
 Mica Cost: ₹${micaCost}
 
 Total Material Cost: ₹${materialCost}
-
 `
 
 }
@@ -153,13 +144,11 @@ hardwareCost =
 (channels * channelPrice)
 
 document.getElementById("hardware").textContent = `
-
 Hinges (${hinges}) ₹${hingePrice}
 Handles (${handles}) ₹${handlePrice}
 Channels (${channels}) ₹${channelPrice}
 
 Total Hardware Cost: ₹${hardwareCost}
-
 `
 
 }
@@ -167,7 +156,7 @@ Total Hardware Cost: ₹${hardwareCost}
 
 
 // =======================
-// MULTI SHEET LAYOUT
+// AUTO OPTIMIZED LAYOUT
 // =======================
 
 function generateLayout(){
@@ -179,46 +168,94 @@ ctx.clearRect(0,0,canvas.width,canvas.height)
 
 let sheetW = 2440
 let sheetH = 1220
-let scale = 0.2
 
 sheets = []
 let currentSheet = []
-let x=0,y=0,rowH=0
+
+let x=0, y=0, rowH=0
+
+// SORT panels (big → small for better packing)
+panels.sort((a,b)=>(b.w*b.h)-(a.w*a.h))
 
 panels.forEach(panel=>{
 
-let pw = panel.w * scale
-let ph = panel.h * scale
+let placed = false
 
-// new sheet if overflow height
-if(y + ph > sheetH*scale){
+// try both orientations
+let options = [
+{w:panel.w, h:panel.h},
+{w:panel.h, h:panel.w}
+]
+
+for(let opt of options){
+
+let pw = opt.w
+let ph = opt.h
+
+if(pw > sheetW || ph > sheetH) continue
+
+let tempX = x
+let tempY = y
+let tempRowH = rowH
+
+// new row if needed
+if(tempX + pw > sheetW){
+tempX = 0
+tempY += tempRowH
+tempRowH = 0
+}
+
+// new sheet if needed
+if(tempY + ph > sheetH){
+continue
+}
+
+// place panel
+currentSheet.push({
+x:tempX,
+y:tempY,
+w:pw,
+h:ph,
+name:panel.name
+})
+
+// update
+x = tempX + pw
+y = tempY
+rowH = Math.max(tempRowH, ph)
+
+placed = true
+break
+
+}
+
+// if not placed → new sheet
+if(!placed){
 
 sheets.push(currentSheet)
+
 currentSheet = []
-x=0
-y=0
-rowH=0
-
-}
-
-// new row
-if(x + pw > sheetW*scale){
 
 x = 0
-y += rowH
+y = 0
 rowH = 0
 
+currentSheet.push({
+x:0,
+y:0,
+w:panel.w,
+h:panel.h,
+name:panel.name
+})
+
+x = panel.w
+rowH = panel.h
+
 }
-
-currentSheet.push({x,y,pw,ph,name:panel.name})
-
-x += pw
-
-if(ph > rowH) rowH = ph
 
 })
 
-sheets.push(currentSheet)
+if(currentSheet.length) sheets.push(currentSheet)
 
 drawSheet(0)
 
@@ -241,17 +278,29 @@ ctx.clearRect(0,0,canvas.width,canvas.height)
 
 let sheet = sheets[page]
 
+let sheetW = 2440
+let sheetH = 1220
+
+let scale = Math.min(
+canvas.width / sheetW,
+canvas.height / sheetH
+)
+
+ctx.strokeRect(0,0,sheetW*scale,sheetH*scale)
+
 sheet.forEach(p=>{
-ctx.strokeRect(p.x,p.y,p.pw,p.ph)
-ctx.fillText(p.name,p.x+5,p.y+15)
+
+let x = p.x * scale
+let y = p.y * scale
+let w = p.w * scale
+let h = p.h * scale
+
+ctx.strokeRect(x,y,w,h)
+ctx.fillText(p.name,x+5,y+15)
+
 })
 
-// page info
-ctx.fillText(
-`Sheet ${page+1} / ${sheets.length}`,
-10,
-canvas.height - 10
-)
+ctx.fillText(`Sheet ${page+1}/${sheets.length}`,10,sheetH*scale-10)
 
 }
 
@@ -262,25 +311,21 @@ canvas.height - 10
 // =======================
 
 function nextSheet(){
-
 if(currentPage < sheets.length-1){
 drawSheet(currentPage+1)
 }
-
 }
 
 function prevSheet(){
-
 if(currentPage > 0){
 drawSheet(currentPage-1)
 }
-
 }
 
 
 
 // =======================
-// ADD CABINET TO PROJECT
+// PROJECT
 // =======================
 
 function addCabinet(){
@@ -294,16 +339,9 @@ hardware:hardwareCost
 }
 
 project.cabinets.push(cabinet)
-
 displayProject()
 
 }
-
-
-
-// =======================
-// DISPLAY PROJECT
-// =======================
 
 function displayProject(){
 
@@ -313,13 +351,9 @@ project.cabinets.forEach((cab,i)=>{
 
 output += `
 Cabinet ${i+1}
-
-Size : ${cab.width} x ${cab.height} x ${cab.depth}
-
-Material : ₹${cab.material}
-
-Hardware : ₹${cab.hardware}
-
+Size: ${cab.width} x ${cab.height} x ${cab.depth}
+Material: ₹${cab.material}
+Hardware: ₹${cab.hardware}
 `
 
 })
@@ -327,12 +361,6 @@ Hardware : ₹${cab.hardware}
 document.getElementById("projectList").textContent = output
 
 }
-
-
-
-// =======================
-// PROJECT QUOTATION
-// =======================
 
 function generateProjectQuotation(){
 
@@ -350,25 +378,15 @@ let transport = 1000
 let total = totalMaterial + totalHardware + labour + transport
 
 document.getElementById("projectQuotation").textContent = `
+Client: ${project.client}
+Project: ${project.name}
 
------- PROJECT QUOTATION ------
+Material: ₹${totalMaterial}
+Hardware: ₹${totalHardware}
+Labour: ₹${labour}
+Transport: ₹${transport}
 
-Client : ${project.client}
-
-Project : ${project.name}
-
-Material Cost : ₹${totalMaterial}
-
-Hardware Cost : ₹${totalHardware}
-
-Labour : ₹${labour}
-
-Transport : ₹${transport}
-
------------------------------
-
-TOTAL : ₹${total}
-
+TOTAL: ₹${total}
 `
 
 }
