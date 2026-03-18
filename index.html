@@ -10,6 +10,7 @@
 
 <h1>Furniture Calculator</h1>
 
+<!-- PROJECT -->
 <div class="container">
 
 <h2>Create Project</h2>
@@ -25,9 +26,10 @@
 </div>
 
 
+<!-- CABINET INPUT -->
 <div class="container">
 
-<h2>Cabinet Dimensions</h2>
+<h2>Cabinet Details</h2>
 
 <label>Height (mm)</label>
 <input type="number" id="height">
@@ -38,14 +40,19 @@
 <label>Depth (mm)</label>
 <input type="number" id="depth">
 
-<label>Sheet Thickness</label>
+<label>Sheet Thickness (mm)</label>
 <input type="number" id="thickness" value="18">
 
-<button onclick="generateCutList()">Generate Cut List</button>
+<label>Mica Thickness (mm)</label>
+<input type="number" id="micaThickness" value="1">
+
+<label>Quantity</label>
+<input type="number" id="qty" value="1">
 
 </div>
 
 
+<!-- COMPARTMENTS -->
 <div class="container">
 
 <h2>Compartments</h2>
@@ -59,26 +66,26 @@
 </div>
 
 
+<!-- MATERIAL -->
 <div class="container">
 
-<h2>Material Cost</h2>
+<h2>Material</h2>
 
-<label>Plywood Price / sq ft</label>
+<label>Plywood Price (per sheet)</label>
 <input type="number" id="plyPrice">
 
-<label>Mica Price / sq ft</label>
+<label>Mica Price (per sheet)</label>
 <input type="number" id="micaPrice">
-
-<button onclick="calculateCost()">Calculate Material</button>
 
 <pre id="cost"></pre>
 
 </div>
 
 
+<!-- HARDWARE -->
 <div class="container">
 
-<h2>Hardware Cost</h2>
+<h2>Hardware</h2>
 
 <label>Hinge Price</label>
 <input type="number" id="hingePrice">
@@ -89,13 +96,22 @@
 <label>Channel Price</label>
 <input type="number" id="channelPrice">
 
-<button onclick="calculateHardware()">Calculate Hardware</button>
-
 <pre id="hardware"></pre>
 
 </div>
 
 
+<!-- SINGLE BUTTON -->
+<div class="container" style="text-align:center">
+
+<button onclick="calculateAll()" style="font-size:18px;padding:15px 40px;">
+Calculate
+</button>
+
+</div>
+
+
+<!-- CUT LIST -->
 <div class="container">
 
 <h2>Cut List</h2>
@@ -107,17 +123,22 @@
 </div>
 
 
+<!-- SHEET LAYOUT -->
 <div class="container">
 
 <h2>Sheet Cutting Layout</h2>
 
 <canvas id="sheetCanvas" width="700" height="350"></canvas>
 
-<button onclick="generateLayout()">Generate Layout</button>
+<div style="margin-top:10px;">
+<button onclick="prevSheet()">Previous</button>
+<button onclick="nextSheet()">Next</button>
+</div>
 
 </div>
 
 
+<!-- PROJECT -->
 <div class="container">
 
 <h2>Project Cabinets</h2>
