@@ -1,64 +1,173 @@
+/* RESET */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family: 'Segoe UI', sans-serif;
+}
+
+/* BODY */
 body{
-
-font-family:Arial;
-background:#f4f4f4;
-padding:20px;
-
+background:#f1f3f6;
+color:#222;
+padding-bottom:100px;
 }
 
+/* HEADER */
 h1{
-
 text-align:center;
-
+padding:15px;
+font-size:20px;
+font-weight:600;
+background:white;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
+position:sticky;
+top:0;
+z-index:10;
 }
 
+/* CONTAINER */
 .container{
-
 background:white;
-padding:20px;
-margin-bottom:20px;
-border-radius:10px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
+margin:12px;
+padding:15px;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
 
+/* SECTION TITLE */
+.container h2{
+font-size:16px;
+margin-bottom:10px;
+color:#444;
+}
+
+/* INPUTS */
+label{
+font-size:13px;
+color:#666;
+margin-bottom:3px;
+display:block;
 }
 
 input{
-
-display:block;
+width:100%;
+padding:10px;
 margin-bottom:10px;
-padding:8px;
-width:220px;
-
+border-radius:8px;
+border:1px solid #ddd;
+font-size:14px;
+transition:0.2s;
 }
 
-button{
+input:focus{
+border-color:#2c7be5;
+outline:none;
+box-shadow:0 0 0 2px rgba(44,123,229,0.1);
+}
 
-padding:10px 20px;
+/* BUTTONS */
+button{
 background:#2c7be5;
 color:white;
 border:none;
-border-radius:5px;
+padding:10px 14px;
+border-radius:8px;
+font-size:14px;
 cursor:pointer;
-
+transition:0.2s;
 }
 
 button:hover{
-
-background:#1b5fc1;
-
+background:#1a5fd1;
 }
 
-canvas{
-
-border:1px solid #ccc;
-margin-top:10px;
-
+/* MAIN CALCULATE BUTTON */
+.container.center{
+text-align:center;
 }
 
+.container.center button{
+width:100%;
+font-size:18px;
+padding:14px;
+border-radius:10px;
+background:linear-gradient(135deg,#2c7be5,#1a5fd1);
+box-shadow:0 4px 12px rgba(44,123,229,0.3);
+}
+
+/* OUTPUT BOX */
 pre{
+background:#f7f9fc;
+padding:12px;
+border-radius:8px;
+font-size:13px;
+overflow:auto;
+margin-top:10px;
+border:1px solid #eee;
+}
 
-background:#eee;
-padding:10px;
-border-radius:5px;
+/* CANVAS */
+canvas{
+width:100%;
+height:auto;
+border:1px solid #ddd;
+border-radius:10px;
+margin-top:10px;
+}
+
+/* PAGINATION BUTTONS */
+.canvas-controls{
+display:flex;
+justify-content:space-between;
+margin-top:10px;
+gap:10px;
+}
+
+.canvas-controls button{
+flex:1;
+}
+
+/* MOBILE GRID (FOR FUTURE USE) */
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+/* SMALL DEVICES */
+@media(max-width:480px){
+
+h1{
+font-size:18px;
+}
+
+.container{
+padding:12px;
+margin:10px;
+}
+
+button{
+font-size:13px;
+}
+
+}
+
+/* TABLET */
+@media(min-width:768px){
+
+body{
+max-width:600px;
+margin:auto;
+}
+
+}
+
+/* DESKTOP */
+@media(min-width:1024px){
+
+body{
+max-width:800px;
+}
 
 }
