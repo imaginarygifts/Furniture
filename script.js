@@ -1,6 +1,9 @@
+let panels = []
+let sheets = []
+let currentPage = 0
+
 let materialCost = 0
 let hardwareCost = 0
-let panels = []
 
 let project = {
 client:"",
@@ -8,7 +11,24 @@ name:"",
 cabinets:[]
 }
 
+// =======================
+// MAIN BUTTON
+// =======================
+
+function calculateAll(){
+
+generateCutList()
+calculateMaterialFullSheet()
+calculateHardware()
+generateLayout()
+
+}
+
+
+
+// =======================
 // CREATE PROJECT
+// =======================
 
 function createProject(){
 
@@ -22,131 +42,255 @@ alert("Project Created")
 
 
 
-// CUT LIST GENERATOR
+// =======================
+// CUT LIST + PANELS
+// =======================
 
 function generateCutList(){
 
 panels = []
 
-let h = parseFloat(document.getElementById("height").value)
-let w = parseFloat(document.getElementById("width").value)
-let d = parseFloat(document.getElementById("depth").value)
+let h = +document.getElementById("height").value
+let w = +document.getElementById("width").value
+let d = +document.getElementById("depth").value
+let t = +document.getElementById("thickness").value
+let shelves = +document.getElementById("shelves").value || 0
+let qty = +document.getElementById("qty").value || 1
 
-let t = parseFloat(document.getElementById("thickness").value)
+let innerW = w - (t*2)
 
-let shelves = parseInt(document.getElementById("shelves").value) || 0
-
-let sidePanel = `${h} x ${d}`
-let topBottom = `${w-(t*2)} x ${d}`
+// repeat for quantity
+for(let q=0;q<qty;q++){
 
 panels.push({name:"Side",w:d,h:h})
 panels.push({name:"Side",w:d,h:h})
-panels.push({name:"Top",w:d,h:w-(t*2)})
-panels.push({name:"Bottom",w:d,h:w-(t*2)})
+
+panels.push({name:"Top",w:d,h:innerW})
+panels.push({name:"Bottom",w:d,h:innerW})
 
 for(let i=0;i<shelves;i++){
-
-panels.push({
-name:"Shelf",
-w:d,
-h:w-(t*2)
-})
+panels.push({name:"Shelf",w:d,h:innerW})
+}
 
 }
 
-let result = `
------ CUT LIST -----
+// UI Output
+document.getElementById("cutlist").textContent = `
+Total Panels: ${panels.length}
 
-Side Panels (2)
-${sidePanel}
+Cabinet Qty: ${qty}
 
-Top Panel
-${topBottom}
-
-Bottom Panel
-${topBottom}
-
-Shelves (${shelves})
-${topBottom}
+Each Cabinet:
+2 Side, 1 Top, 1 Bottom, ${shelves} Shelves
 `
 
-document.getElementById("cutlist").textContent = result
-
 }
 
 
 
-// MATERIAL COST
+// =======================
+// MATERIAL (FULL SHEET)
+// =======================
 
-function calculateCost(){
+function calculateMaterialFullSheet(){
 
-let plyPrice = parseFloat(document.getElementById("plyPrice").value) || 0
-let micaPrice = parseFloat(document.getElementById("micaPrice").value) || 0
+let sheetArea = 32 // 8x4 sheet
 
-let width = parseFloat(document.getElementById("width").value)
-let height = parseFloat(document.getElementById("height").value)
+let plyPrice = +document.getElementById("plyPrice").value || 0
+let micaPrice = +document.getElementById("micaPrice").value || 0
 
-let area = (width * height)/92900
+let totalArea = 0
 
-let plywoodCost = area * plyPrice
-let micaCost = area * micaPrice
+panels.forEach(p=>{
+totalArea += (p.w * p.h)/92900
+})
+
+let sheetsRequired = Math.ceil(totalArea / sheetArea)
+
+// FULL SHEET COST
+let plywoodCost = sheetsRequired * plyPrice
+let micaCost = sheetsRequired * micaPrice
 
 materialCost = plywoodCost + micaCost
 
 document.getElementById("cost").textContent = `
-Material Area : ${area.toFixed(2)} sq ft
 
-Plywood Cost : ₹${plywoodCost.toFixed(2)}
+Total Area Used: ${totalArea.toFixed(2)} sq ft
 
-Mica Cost : ₹${micaCost.toFixed(2)}
+Sheets Required (8x4): ${sheetsRequired}
 
-Total Material Cost : ₹${materialCost.toFixed(2)}
+Plywood Cost: ₹${plywoodCost}
+
+Mica Cost: ₹${micaCost}
+
+Total Material Cost: ₹${materialCost}
+
 `
 
 }
 
 
 
-// HARDWARE COST
+// =======================
+// HARDWARE
+// =======================
 
 function calculateHardware(){
 
-let hingePrice = parseFloat(document.getElementById("hingePrice").value) || 0
-let handlePrice = parseFloat(document.getElementById("handlePrice").value) || 0
-let channelPrice = parseFloat(document.getElementById("channelPrice").value) || 0
+let hingePrice = +document.getElementById("hingePrice").value || 0
+let handlePrice = +document.getElementById("handlePrice").value || 0
+let channelPrice = +document.getElementById("channelPrice").value || 0
 
-let hingeCost = hingePrice * 2
-let handleCost = handlePrice * 1
-let channelCost = channelPrice * 1
+let qty = +document.getElementById("qty").value || 1
 
-hardwareCost = hingeCost + handleCost + channelCost
+let hinges = 2 * qty
+let handles = 1 * qty
+let channels = 1 * qty
+
+hardwareCost =
+(hinges * hingePrice) +
+(handles * handlePrice) +
+(channels * channelPrice)
 
 document.getElementById("hardware").textContent = `
-Hinges : ₹${hingeCost}
 
-Handles : ₹${handleCost}
+Hinges (${hinges}) ₹${hingePrice}
+Handles (${handles}) ₹${handlePrice}
+Channels (${channels}) ₹${channelPrice}
 
-Channels : ₹${channelCost}
+Total Hardware Cost: ₹${hardwareCost}
 
-Total Hardware Cost : ₹${hardwareCost}
 `
 
 }
 
 
 
+// =======================
+// MULTI SHEET LAYOUT
+// =======================
+
+function generateLayout(){
+
+let canvas = document.getElementById("sheetCanvas")
+let ctx = canvas.getContext("2d")
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+let sheetW = 2440
+let sheetH = 1220
+let scale = 0.2
+
+sheets = []
+let currentSheet = []
+let x=0,y=0,rowH=0
+
+panels.forEach(panel=>{
+
+let pw = panel.w * scale
+let ph = panel.h * scale
+
+// new sheet if overflow height
+if(y + ph > sheetH*scale){
+
+sheets.push(currentSheet)
+currentSheet = []
+x=0
+y=0
+rowH=0
+
+}
+
+// new row
+if(x + pw > sheetW*scale){
+
+x = 0
+y += rowH
+rowH = 0
+
+}
+
+currentSheet.push({x,y,pw,ph,name:panel.name})
+
+x += pw
+
+if(ph > rowH) rowH = ph
+
+})
+
+sheets.push(currentSheet)
+
+drawSheet(0)
+
+}
+
+
+
+// =======================
+// DRAW SHEET
+// =======================
+
+function drawSheet(page){
+
+currentPage = page
+
+let canvas = document.getElementById("sheetCanvas")
+let ctx = canvas.getContext("2d")
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+let sheet = sheets[page]
+
+sheet.forEach(p=>{
+ctx.strokeRect(p.x,p.y,p.pw,p.ph)
+ctx.fillText(p.name,p.x+5,p.y+15)
+})
+
+// page info
+ctx.fillText(
+`Sheet ${page+1} / ${sheets.length}`,
+10,
+canvas.height - 10
+)
+
+}
+
+
+
+// =======================
+// PAGINATION
+// =======================
+
+function nextSheet(){
+
+if(currentPage < sheets.length-1){
+drawSheet(currentPage+1)
+}
+
+}
+
+function prevSheet(){
+
+if(currentPage > 0){
+drawSheet(currentPage-1)
+}
+
+}
+
+
+
+// =======================
 // ADD CABINET TO PROJECT
+// =======================
 
 function addCabinet(){
 
 let cabinet = {
-
 width:document.getElementById("width").value,
 height:document.getElementById("height").value,
 depth:document.getElementById("depth").value,
 material:materialCost,
 hardware:hardwareCost
-
 }
 
 project.cabinets.push(cabinet)
@@ -157,7 +301,9 @@ displayProject()
 
 
 
+// =======================
 // DISPLAY PROJECT
+// =======================
 
 function displayProject(){
 
@@ -184,7 +330,9 @@ document.getElementById("projectList").textContent = output
 
 
 
+// =======================
 // PROJECT QUOTATION
+// =======================
 
 function generateProjectQuotation(){
 
@@ -192,10 +340,8 @@ let totalMaterial = 0
 let totalHardware = 0
 
 project.cabinets.forEach(c=>{
-
 totalMaterial += c.material
 totalHardware += c.hardware
-
 })
 
 let labour = totalMaterial * 0.25
@@ -224,51 +370,5 @@ Transport : ₹${transport}
 TOTAL : ₹${total}
 
 `
-
-}
-
-
-
-// SHEET CUTTING LAYOUT
-
-function generateLayout(){
-
-let canvas = document.getElementById("sheetCanvas")
-let ctx = canvas.getContext("2d")
-
-ctx.clearRect(0,0,canvas.width,canvas.height)
-
-let sheetW = 2440
-let scale = 0.2
-
-let x = 0
-let y = 0
-let rowHeight = 0
-
-panels.forEach(panel=>{
-
-let pw = panel.w * scale
-let ph = panel.h * scale
-
-if(x + pw > sheetW*scale){
-
-x = 0
-y += rowHeight
-rowHeight = 0
-
-}
-
-ctx.strokeRect(x,y,pw,ph)
-ctx.fillText(panel.name,x+5,y+15)
-
-x += pw
-
-if(ph > rowHeight){
-
-rowHeight = ph
-
-}
-
-})
 
 }
