@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Furniture Calculator</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -26,7 +27,7 @@
 </div>
 
 
-<!-- CABINET INPUT -->
+<!-- CABINET DETAILS -->
 <div class="container">
 
 <h2>Cabinet Details</h2>
@@ -57,11 +58,17 @@
 
 <h2>Compartments</h2>
 
+<div class="grid">
+<div>
 <label>Shelves</label>
 <input type="number" id="shelves" value="0">
+</div>
 
+<div>
 <label>Drawers</label>
 <input type="number" id="drawers" value="0">
+</div>
+</div>
 
 </div>
 
@@ -87,24 +94,32 @@
 
 <h2>Hardware</h2>
 
+<div class="grid">
+<div>
 <label>Hinge Price</label>
 <input type="number" id="hingePrice">
+</div>
 
+<div>
 <label>Handle Price</label>
 <input type="number" id="handlePrice">
+</div>
 
+<div>
 <label>Channel Price</label>
 <input type="number" id="channelPrice">
+</div>
+</div>
 
 <pre id="hardware"></pre>
 
 </div>
 
 
-<!-- SINGLE BUTTON -->
-<div class="container" style="text-align:center">
+<!-- MAIN CALCULATE BUTTON -->
+<div class="container center">
 
-<button onclick="calculateAll()" style="font-size:18px;padding:15px 40px;">
+<button onclick="calculateAll()">
 Calculate
 </button>
 
@@ -128,17 +143,17 @@ Calculate
 
 <h2>Sheet Cutting Layout</h2>
 
-<canvas id="sheetCanvas" width="700" height="350"></canvas>
+<canvas id="sheetCanvas"></canvas>
 
-<div style="margin-top:10px;">
-<button onclick="prevSheet()">Previous</button>
-<button onclick="nextSheet()">Next</button>
+<div class="canvas-controls">
+<button onclick="prevSheet()">⬅ Previous</button>
+<button onclick="nextSheet()">Next ➡</button>
 </div>
 
 </div>
 
 
-<!-- PROJECT -->
+<!-- PROJECT SUMMARY -->
 <div class="container">
 
 <h2>Project Cabinets</h2>
